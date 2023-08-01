@@ -1,1 +1,0 @@
-# CiLQR_cpp
