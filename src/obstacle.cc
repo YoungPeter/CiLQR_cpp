@@ -8,9 +8,9 @@ std::tuple<double, Eigen::MatrixXd, Eigen::MatrixXd> Obstacle::BarrierFunction(
     double q1, double q2, double c, const Eigen::MatrixXd& c_dot) {
   const double exp_q2_c = std::exp(q2 * c);
   const double b = q1 * exp_q2_c;
-  const double b_dot = q1 *q2 *exp_q2_c *c_dot const double b_ddot =
-      q1 * std::pow(q2, 2) * exp_q2_c * c_dot,
-               c_dot.transpose();
+  const auto b_dot = q1 * q2 * exp_q2_c * c_dot;
+  const auto b_ddot =
+      q1 * std::pow(q2, 2) * exp_q2_c * c_dot * c_dot.transpose();
   return std::make_tuple(b, b_dot, b_ddot);
 }
 
@@ -42,9 +42,8 @@ Obstacle::GetObstacleCostDerivatives(const std::vector<State>& npc_traj, int i,
                         ego_state.y + std::sin(ego_theta) + args_.ego_lf,
                         ego_state.v, ego_state.theta};
   Eigen::MatrixXd state_diff1(4, 1);
-  state_diff1 << ego_front.x - npc_traj[i].x,
-      ego_front.y - npc_traj[i].y ego_front.v - npc_traj[i].v,
-      ego_front.theta - npc_traj[i].theta;
+  state_diff1 << ego_front.x - npc_traj[i].x, ego_front.y - npc_traj[i].y,
+      ego_front.v - npc_traj[i].v, ego_front.theta - npc_traj[i].theta;
   const auto diff1 = transformation_matrix * state_diff1;
 
   const auto temp_value1 = diff1.transpose() * P1 * diff1;
@@ -57,9 +56,8 @@ Obstacle::GetObstacleCostDerivatives(const std::vector<State>& npc_traj, int i,
                        ego_state.y - std::sin(ego_theta) + args_.ego_lf,
                        ego_state.v, ego_state.theta};
   Eigen::MatrixXd state_diff2(4, 1);
-  state_diff2 << ego_rear.x - npc_traj[i].x,
-      ego_rear.y - npc_traj[i].y ego_rear.v - npc_traj[i].v,
-      ego_rear.theta - npc_traj[i].theta;
+  state_diff2 << ego_rear.x - npc_traj[i].x, ego_rear.y - npc_traj[i].y,
+      ego_rear.v - npc_traj[i].v, ego_rear.theta - npc_traj[i].theta;
   const auto diff2 = transformation_matrix * state_diff2;
 
   const auto temp_value2 = diff2.transpose() * P1 * diff2;
